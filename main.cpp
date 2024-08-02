@@ -1,5 +1,8 @@
 #include <QApplication>
 #include <QWidget>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
 
 #include <iostream>
 
@@ -264,11 +267,208 @@ void test_4()
 
 }
 
+void test_5()
+{
+    {
+        auto ret = Fcalc::parse_calc_ls("1+2"); 
+        if(ret.is_valid())
+        {
+            std::string smen;
+            if(ret._is_integer)
+            {
+                auto val = Fcalc::to_type_integer(ret);
+                val = Fbyte::Tto_endian_net(val);
+                smen = Fbyte::Tmem_str(val);
+            }
+            else 
+            {
+                auto val = Fcalc::to_type_float(ret);
+                val = Fbyte::Tto_endian_net(val);
+                smen = Fbyte::Tmem_str(val);
+            }
+                    
+            auto sb = Fbyte::hto_sbyte(smen);
+            auto sh = Fbyte::hto_hex(smen);
+            vlogd($(sb) $(sh) $(ret._value));
+        }
+    }
 
+    {
+        auto ret = Fcalc::parse_calc_ls("1.1+2.2"); 
+        if(ret.is_valid())
+        {
+            std::string smen;
+            if(ret._is_integer)
+            {
+                auto val = Fcalc::to_type_integer(ret);
+                val = Fbyte::Tto_endian_net(val);
+                smen = Fbyte::Tmem_str(val);
+            }
+            else 
+            {
+                auto val = Fcalc::to_type_float(ret);
+                val = Fbyte::Tto_endian_net(val);
+                smen = Fbyte::Tmem_str(val);
+            }
+                    
+            auto sb = Fbyte::hto_sbyte(smen);
+            auto sh = Fbyte::hto_hex(smen);
+            vlogd($(sb) $(sh) $(ret._value) $(Fbyte::to_upper(sh)));
+
+            auto hex = Fbyte::sto_hex(sh);
+            auto val = Fbyte::Tmem_str<double>(hex);
+            val = Fbyte::Tto_endian_net(val);
+            vlogd($(val));
+        }
+    }
+
+}
+
+// 从0-20转-72~12
+double VolToNetType(int val)
+{
+    double dval = val;
+    dval *= 4;
+    dval -= 72;
+    return dval;
+}
+
+// 从-72~12转0-20
+int VolToShowType(double val)
+{
+    int dval = val;
+    dval += 72;
+    dval /= 4; 
+    return dval;
+}
+
+
+void test_6()
+{   
+    {
+        auto s1 = VolToNetType(0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(1);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(4);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(10);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(19);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(20);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToNetType(21);
+        vlogd($(s1));
+    }
+
+    {
+        auto s1 = VolToShowType(-72.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-70.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-68.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-64.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-60.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-55.2);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(-30.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(8.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(10.0);
+        vlogd($(s1));
+    }
+    {
+        auto s1 = VolToShowType(12.0);
+        vlogd($(s1));
+    }
+}
+
+void test_7()
+{
+    {
+        auto c = Fbyte::sbyte_char("00001111");
+        auto s = Fbyte::cto_shex(c);
+        vlogd($(c) $(s));
+    }
+    {
+        auto c = Fbyte::sbyte_char("01000001");
+        auto s = Fbyte::cto_shex(c);
+        vlogd($(c) $(s));
+    }
+    {
+        auto c = Fbyte::sbyte_shex("01000001010000010000111100001111");
+        vlogd($(c));
+    }
+    {
+        auto c = Fbyte::sbyte_shex("1111000101000001000011110000111101000001010000010000111100001111");
+        vlogd($(c));
+    }
+    
+}
+
+
+// 读取指定目录下的所有样式表
+QString read_file_qss(QString path)
+{
+    QString style;
+    QDir dir(path);
+    auto ls = dir.entryList();
+    for(auto &a:ls)
+    {
+        QFileInfo info(path + a);
+        if(info.isFile() && info.suffix() == "qss")
+        {
+            QFile fs(info.absoluteFilePath());
+            if(fs.open(QIODevice::ReadOnly))
+            {
+                style += fs.readAll();
+                fs.close();
+            }
+        }
+    }
+    return style;
+}
 
 int run_main_app(int argc, char *argv[])
 {
     QApplication a(argc,argv);
+
+    auto sstyle = read_file_qss("../config/style/default/");
+    qApp->setStyleSheet(sstyle);
+    vlogd($Q(sstyle));
 
     main_window w;
     w.show();
@@ -299,8 +499,8 @@ int main(int argc, char *argv[])
     vlogd("== begin ==");
 
 
-#if 1
-    test_4();
+#if 0
+    test_7();
     return 0;
 #endif
 

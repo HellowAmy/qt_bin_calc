@@ -417,4 +417,6 @@ void print_con(Tit begin,Tit end,int len,const std::string &flg)
 //== 容器打印格式 ==
 
 
+#define $Q(value) "["#value": "<<value.toStdString()<<"] "
+
 #endif // TVLOG_H

@@ -295,15 +295,11 @@ struct Fbyte
     }
 
     // 字节转二进制字符串
-    static inline std::string hto_sbyte(const std::string &hex,char flg = ' ')
+    static inline std::string hto_sbyte(const std::string &hex)
     {
         std::string ret;
         for(int i=0;i<hex.size();i++)
         {
-            if(i != 0)
-            {
-                ret += flg;
-            }
             ret += char_sbyte(hex[i]);
         }
         return ret;
@@ -322,12 +318,74 @@ struct Fbyte
         return std::make_pair<bool,int>(false,0);
     }
 
+    // 格式化二进制字符串
+    static inline std::string format_sbyte(const std::string &s,const std::string &flg = " ")
+    {
+        std::string ret;
+        for(int i=0;i<s.size();i++)
+        {
+            ret.push_back(s[i]);
 
+            if((i+1)%8==0)
+            {
+                ret += flg;
+            }
+        }
+        return ret;
+    }
+    
+    // 格式化字符串为指定长度
+    static inline std::string format_str(const std::string &s,const std::string &flg,size_t space)
+    {
+        std::string ret;
+        for(int i=0;i<s.size();i++)
+        {
+            ret.push_back(s[i]);
 
+            if((i+1)%space==0 && (i != s.size() -1))
+            {
+                ret += flg;
+            }
+        }
+        return ret;
+    }
+
+    // 二进制字符串转单字节
+    static inline char sbyte_char(const std::string &s)
+    {
+        if(s.size() != 8) 
+        {
+            return 0;
+        }
+        char ret = 0;
+        if(s[0] == '1') { ret |= _char_high_byte_8_; }
+        if(s[1] == '1') { ret |= _char_high_byte_4_; }
+        if(s[2] == '1') { ret |= _char_high_byte_2_; }
+        if(s[3] == '1') { ret |= _char_high_byte_1_; }
+
+        if(s[4] == '1') { ret |= _char_low_byte_8_; }
+        if(s[5] == '1') { ret |= _char_low_byte_4_; }
+        if(s[6] == '1') { ret |= _char_low_byte_2_; }
+        if(s[7] == '1') { ret |= _char_low_byte_1_; }
+        return ret;
+    }
+
+    // 二进制字符串转十六进制字符串
+    static inline std::string sbyte_shex(const std::string &s)
+    {
+        std::string ret;
+        for(int i=0;i<s.size();i=i+8)
+        {
+            std::string part(s.begin() +i,s.begin() +i +8);
+            char c = sbyte_char(part);
+            ret += cto_shex(c);
+        }
+        return ret;
+    }
 
     // 转8位二进制字符串-未知长度
     template<typename T>
-    static inline std::string Tto_sbyte(T c,char flg = ' ')
+    static inline std::string Tto_sbyte(T c)
     {
         T t = 1;
         size_t len = sizeof(c)*8;
@@ -345,10 +403,6 @@ struct Fbyte
                 ret.push_back('0');   
             }
             c <<= 1;
-            if((i+1)%8 == 0)
-            {
-                ret.push_back(flg);   
-            }
         }
         return ret;
     }
@@ -362,6 +416,16 @@ struct Fbyte
         memcpy((void*)ret.data(),&val,ret.size());
         return ret;
     }
+
+    // 二进制写入类型
+    template<typename T>
+    static inline T Tmem_str(const std::string &s)
+    {
+        T val;
+        memcpy(&val,(void*)s.data(),sizeof(val));
+        return val;
+    }
+
 
     // 按字节顺序转8位二进制字符串-未知长度
     template<typename T>
@@ -396,6 +460,22 @@ struct Fbyte
             }
         }
         return ret;
+    }
+
+    // 二进制转字符串 有/无 符号整数
+    template<typename Tt,typename Tut>
+    static inline std::string Thto_mem_str(const std::string &hex,bool is_unsigned)
+    { 
+        std::string ret;
+        if(is_unsigned)
+        {
+            ret = std::to_string(Fbyte::Tmem_str<Tut>(hex));
+        }
+        else 
+        {
+            ret = std::to_string(Fbyte::Tmem_str<Tt>(hex));
+        }
+        return ret; 
     }
 
     // 大小端字节序交换函数
