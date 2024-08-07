@@ -65,7 +65,7 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
     lay_main->setContentsMargins(5,5,5,5);
     lay_main->addLayout(laybv);
 
-    uncheck_group(_E_10D_,_set_base);
+    uncheck_group(_E_16H_,_set_base);
     uncheck_group(_E_8BT_,_set_bt);
     set_check_status(_E_UD_,true);
 }

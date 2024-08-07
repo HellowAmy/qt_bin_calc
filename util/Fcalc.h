@@ -20,7 +20,6 @@ using namespace std;
 typedef std::string sstr;
 typedef const std::string & cstr;
 
-
 struct calc_object_t
 {
     calc_object_t() { }
@@ -349,7 +348,10 @@ struct Fcalc
                         break;
                     }
                 }
-                scalc._symbols.pop();
+                if(scalc._symbols.empty() == false)
+                {
+                    scalc._symbols.pop();
+                }
             }
             else if(Fbyte::is_hex_digit(c))
             {

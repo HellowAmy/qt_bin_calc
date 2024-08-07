@@ -436,9 +436,28 @@ void test_7()
         auto c = Fbyte::sbyte_shex("1111000101000001000011110000111101000001010000010000111100001111");
         vlogd($(c));
     }
-    
+
 }
 
+void test_8()
+{
+    {
+        auto c = Fbyte::sbyte_soct("111001111");
+        vlogd($(c));
+    }
+    {
+        auto c = Fbyte::sbyte_soct("1110011111");
+        vlogd($(c));
+    }
+    {
+        auto c = Fbyte::soct_sbyte("717");
+        vlogd($(c));
+    }
+    {
+        auto c = Fbyte::soct_sbyte("1717");
+        vlogd($(c));
+    }
+}
 
 // 读取指定目录下的所有样式表
 QString read_file_qss(QString path)
@@ -500,7 +519,7 @@ int main(int argc, char *argv[])
 
 
 #if 0
-    test_7();
+    test_8();
     return 0;
 #endif
 

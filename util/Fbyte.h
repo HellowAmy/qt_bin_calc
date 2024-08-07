@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstring>
 #include <sstream>
+#include <algorithm>
 
 // == 大小端判断 ==
 #ifndef BIG_ENDIAN
@@ -90,7 +91,7 @@ struct Fbyte
         return ret;
     }
 
-    // 转8位二进制字符串-单字符
+    // 二进制转二进制字符串-单字符
     static inline std::string to_sbyte(char c)
     {
         std::string ret;
@@ -109,13 +110,13 @@ struct Fbyte
         return ret;
     }
 
-    // 转8位二进制字符串-字符串
-    static inline std::string to_strbyte(const std::string &s,char flg = ' ')
+    // 二进制转二进制字符串-字符串
+    static inline std::string to_strbyte(const std::string &s)
     {
         std::string ret;
         for(int i=0;i<s.size();i++)
         {
-            ret += to_sbyte(s[i]) + flg;
+            ret += to_sbyte(s[i]);
         }
         return ret;
     }
@@ -370,6 +371,60 @@ struct Fbyte
         return ret;
     }
 
+    // 二进制字符串转八进制字符 [111 -> 7]
+    static inline std::string sbyte_soct(std::string s)
+    {
+        std::string ret;
+        std::reverse(s.begin(),s.end());
+        int index = 0;
+        for(int i=0;i<s.size();i=i+3)
+        {
+            index = i+3;
+            int sum = 0;
+            if(s[i] == '1') { sum += 1; }
+            if(s[i+1] == '1') { sum += 2; }
+            if(s[i+2] == '1') { sum += 4; }
+            ret += Tto_string(sum);
+        }
+        vlogd($(index) $(s.size()));
+
+        int sum = 0;
+        int count = 0;
+        while (index < s.size())
+        {
+            if(s[index] == '1') { sum += (2^count); };
+            index++;
+            count++;
+        }
+        if(sum != 0)
+        {
+            ret += Tto_string(sum);
+        }
+        return ret;
+    }
+
+    // 八进制字符转二进制字符 [7 -> 111]
+    static inline std::string coct_sbyte(char c)
+    {
+        std::string ret = "000";
+        if(_char_low_byte_4_ & c) { ret[0] = '1'; }
+        if(_char_low_byte_2_ & c) { ret[1] = '1'; }
+        if(_char_low_byte_1_ & c) { ret[2] = '1'; }
+        return ret;
+    }
+
+    // 八进制字符转二进制字符 [7 -> 111]
+    static inline std::string soct_sbyte(const std::string &s)
+    {
+        std::string ret;
+        for(int i=0;i<s.size();i++)
+        {   
+            ret += coct_sbyte(s[i]);
+        }
+        return ret;
+    }
+
+
     // 二进制字符串转十六进制字符串
     static inline std::string sbyte_shex(const std::string &s)
     {
@@ -464,16 +519,26 @@ struct Fbyte
 
     // 二进制转字符串 有/无 符号整数
     template<typename Tt,typename Tut>
-    static inline std::string Thto_mem_str(const std::string &hex,bool is_unsigned)
+    static inline std::string Thto_mem_str(const std::string &hex,bool is_unsigned,bool is_swap)
     { 
         std::string ret;
         if(is_unsigned)
         {
-            ret = std::to_string(Fbyte::Tmem_str<Tut>(hex));
+            Tut t = Fbyte::Tmem_str<Tut>(hex);
+            if(is_swap)
+            {
+                t = Tto_swap_endian<Tut>(t);
+            }
+            ret = std::to_string(t);
         }
         else 
         {
-            ret = std::to_string(Fbyte::Tmem_str<Tt>(hex));
+            Tt t = Fbyte::Tmem_str<Tt>(hex);
+            if(is_swap)
+            {
+                t = Tto_swap_endian<Tt>(t);
+            }
+            ret = std::to_string(t);
         }
         return ret; 
     }
