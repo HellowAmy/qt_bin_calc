@@ -4,52 +4,20 @@
 
 main_window::main_window(QWidget *parent) : QWidget(parent)
 {
-    this->setWindowTitle("Calculator");
+    QString endina;
 
-#if 0
-    QVBoxLayout *lay_main = new QVBoxLayout(this);
-    // {
-    //     wid_input *w = new wid_input(this);
-
-    //     connect(w,&wid_input::sn_click_symbol,[=](const QString &symbol){
-    //         vlogd($Q(symbol));
-    //     });
-
-    //     lay_main->addWidget(w);
-    // }
-
-    {
-        input_but_lay *w = new input_but_lay(this);
-
-        long long val = 123456789;
-        auto cs = Fbyte::Tto_sbyte(val);
-        auto fcs = Fbyte::format_sbyte(cs);
-        vlogd($(cs));
-        vlogd($(fcs));
-        w->set_binary_ls(QString::fromStdString(cs));
-
-
-
-
-        connect(w,&input_but_lay::sn_click_pos,[=](int pos,bool val){
-            vlogd($(pos) $(val));
-
-            auto sbin = w->get_binary_ls();
-            vlogd($Q(sbin));
-        });
-
-        lay_main->addWidget(w);
-    }
-
-
-
-
-    QPushButton *b = new QPushButton(this);
-    lay_main->addWidget(b);
-
-
+#if IS_BIG_ENDIAN
+    endina = "Big";
 #else
+    endina = "Little";
+#endif
+
+    this->setWindowTitle(QString("Calculator [ %1 ]").arg(endina));
+
+#if 1
     init_wid(parent);
+#else
+
 #endif
 
 
@@ -61,6 +29,20 @@ main_window::~main_window()
 
 void main_window::init_wid(QWidget *parent)
 {
+    union super_var_t
+    {
+        int64_t _t64;
+        int32_t _t32;
+        int16_t _t16;
+        int8_t _t8;
+        uint64_t _ut64;
+        uint32_t _ut32;
+        uint16_t _ut16;
+        uint8_t _ut8;
+        float _ff;
+        double _fd;
+    };
+
     std::shared_ptr<bool> sp_focus_float = std::make_shared<bool>(false);
     std::shared_ptr<bool> sp_focus_integer = std::make_shared<bool>(false);
     std::shared_ptr<bool> sp_focus_hex = std::make_shared<bool>(false);
@@ -95,152 +77,102 @@ void main_window::init_wid(QWidget *parent)
         *sp = true;
     };
 
-    auto fn_to_str_integer = [=](const std::string &hex,bool is_unsigned,bool is_swap){
-        std::string ret_integer;
-        size_t bsize = hex.size();
-        if(bsize == 1)
-        {
-            ret_integer = Fbyte::Thto_mem_str<int8_t,uint8_t>(hex,is_unsigned,is_swap);
-        }
-        else if(bsize == 2)
-        {
-            ret_integer = Fbyte::Thto_mem_str<int16_t,uint16_t>(hex,is_unsigned,is_swap);
-        }
-        else if(bsize == 4)
-        {
-            ret_integer = Fbyte::Thto_mem_str<int32_t,uint32_t>(hex,is_unsigned,is_swap);
-        }
-        else if(bsize == 8)
-        {
-            ret_integer = Fbyte::Thto_mem_str<int64_t,uint64_t>(hex,is_unsigned,is_swap);
-        }
-        return ret_integer;
+    auto fn_to_sfloat = [=](const std::string &sbyte,int size){
+        super_var_t ret;
+        if(size == 8) { ret._fd = Fbyte::Tmem_str<double>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 4) { ret._ff = Fbyte::Tmem_str<float>(Fbyte::sbyte_hex(sbyte)); }
+        return ret;
     };
-    
-    auto fn_to_sbyte_integer = [=](const std::string &val,int bsize,bool is_swap){
-        std::string ret_integer;
-        if(bsize == 1)
-        {
-            auto t = Fbyte::Tfrom_string<int8_t>(val);
-            if(is_swap)
-            {
-                t = Fbyte::Tto_swap_endian<int8_t>(t);
-            }
-            ret_integer = Fbyte::Tmem_str(t);
-        }
-        else if(bsize == 2)
-        {
-            auto t = Fbyte::Tfrom_string<int16_t>(val);
-            if(is_swap)
-            {
-                t = Fbyte::Tto_swap_endian<int16_t>(t);
-            }
-            ret_integer = Fbyte::Tmem_str(t);
-        }
-        else if(bsize == 4)
-        {
-            auto t = Fbyte::Tfrom_string<int32_t>(val);
-            if(is_swap)
-            {
-                t = Fbyte::Tto_swap_endian<int32_t>(t);
-            }
-            ret_integer = Fbyte::Tmem_str(t);
-        }
-        else if(bsize == 8)
-        {
-            auto t = Fbyte::Tfrom_string<int64_t>(val);
-            if(is_swap)
-            {
-                t = Fbyte::Tto_swap_endian<int64_t>(t);
-            }
-            ret_integer = Fbyte::Tmem_str(t);
-        }
-        ret_integer = Fbyte::to_strbyte(ret_integer);
-        return ret_integer;
+    auto fn_from_sfloat = [=](super_var_t sint,int size){
+        std::string ret;
+        if(size == 8) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._fd)); }
+        else if(size == 4) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._ff)); }
+        return ret;
     };
-    
-    auto fn_to_sbyte_float = [=](const std::string &val,int bsize){
-        std::string ret_integer;
-        if(bsize == 4)
-        {
-            ret_integer = Fbyte::Tmem_str(Fbyte::Tfrom_string<float>(val));
-        }
-        else if(bsize == 8)
-        {
-            ret_integer = Fbyte::Tmem_str(Fbyte::Tfrom_string<double>(val));
-        }
-        ret_integer = Fbyte::to_strbyte(ret_integer);
-        return ret_integer;
+    auto fn_to_sint = [=](const std::string &sbyte,int size){
+        super_var_t ret;
+        if(size == 8) { ret._t64 = Fbyte::Tmem_str<int64_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 4) { ret._t64 = Fbyte::Tmem_str<int32_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 2) { ret._t64 = Fbyte::Tmem_str<int16_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 1) { ret._t64 = Fbyte::Tmem_str<int8_t>(Fbyte::sbyte_hex(sbyte)); }
+        return ret;
+    };
+    auto fn_from_sint = [=](super_var_t sint,int size){
+        std::string ret;
+        if(size == 8) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._t64)); }
+        else if(size == 4) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._t32)); }
+        else if(size == 2) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._t16)); }
+        else if(size == 1) { ret = Fbyte::to_strbyte(Fbyte::Tmem_str(sint._t8)); }
+        return ret;
+    };
+    auto fn_get_size = [=](){
+        if(board_key->get_check_status(_E_8BT_)) { return 8; }
+        if(board_key->get_check_status(_E_4BT_)) { return 4; }
+        if(board_key->get_check_status(_E_2BT_)) { return 2; }
+        if(board_key->get_check_status(_E_1BT_)) { return 1; }
+        return 0;
     };
 
-    auto fn_to_str_float = [=](const std::string &hex,bool is_unsigned,bool is_swap,bool is_float,bool is_double){
-        std::string ret_float;
-        if(is_float)
+
+    auto fn_show_F = [=](std::string sbyte,int size){
+        int fsize = fn_get_size();
+        if(fsize == 8 || fsize == 4)
         {
-            ret_float = Fbyte::Thto_mem_str<float,float>(hex,is_unsigned,is_swap);
+            std::string sret;
+            super_var_t ret = fn_to_sfloat(sbyte,fn_get_size());
+            if(fsize == 8) { sret = Fbyte::Tto_string(ret._fd); }
+            else if(fsize == 4) { sret = Fbyte::Tto_string(ret._ff); }
+            edt_float->setText(QString::fromStdString(sret));
         }
-        else if(is_double)
-        {
-            ret_float = Fbyte::Thto_mem_str<double,double>(hex,is_unsigned,is_swap);
-        }
-        return ret_float;
     };
 
-    auto fn_update_data = [=](){
+    auto fn_show_D = [=](std::string sbyte,int size){
+        bool is_unsigned = board_key->get_check_status(_E_UD_);
+        std::string sret;
+        super_var_t ret = fn_to_sint(sbyte,size);
+        if(is_unsigned) { sret = Fbyte::Tto_string(ret._ut64); }
+        else  { sret = Fbyte::Tto_string(ret._t64); }
+        edt_integer->setText(QString::fromStdString(sret));
+    };
+
+    auto fn_show_HEX = [=](std::string sbyte,int size){
         bool is_2B = board_key->get_check_status(_E_2B_);
         bool is_8O = board_key->get_check_status(_E_8O_);
         bool is_10D = board_key->get_check_status(_E_10D_);
         bool is_16H = board_key->get_check_status(_E_16H_);
+
+        if(is_2B)
+        {
+            edt_hex->setText(QString::fromStdString(sbyte));
+        }
+        else if(is_8O)
+        {
+            std::reverse(sbyte.begin(),sbyte.end());
+            auto srcout = Fbyte::sbyte_soct(sbyte);
+
+            std::reverse(srcout.begin(),srcout.end());
+            edt_hex->setText(QString::fromStdString(srcout));
+        }
+        else if(is_10D)
+        {
+            edt_hex->setText(edt_integer->text());
+        }
+        else if(is_16H)
+        {
+            edt_hex->setText(QString::fromStdString(Fbyte::to_upper(Fbyte::sbyte_shex(sbyte))));
+        }
+    };
+
+    auto fn_update_data = [=](){
         std::string sbyte = board_binary->get_binary_valid().toStdString();
-        int bsize = board_key->to_bit_size(board_key->get_bt_group()) / 8;
-        std::string shex = Fbyte::sbyte_shex(sbyte);
-        {
-            std::string shexup = Fbyte::to_upper(shex);
-            std::string fshex = Fbyte::format_str(shexup,"",4);
 
-            if(fn_is_focus(sp_focus_hex) == false)
-            {
-                if(is_16H)
-                {
-                    edt_hex->setText(QString::fromStdString(fshex));
-                }
-                if(is_10D)
-                {
-                    edt_hex->setText(edt_integer->text());
-                }
-                if(is_8O)
-                {
-                    auto rebyte = Fbyte::sbyte_soct(sbyte);
-                    std::reverse(rebyte.begin(),rebyte.end());
-                    edt_hex->setText(QString::fromStdString(rebyte));
-                }
-                if(is_2B)
-                {
-                    edt_hex->setText(QString::fromStdString(sbyte));
-                }
-            }
-        }
-        {
-            bool is_swap = board_key->get_check_status(_E_BW_);
-            bool is_unsigned = board_key->get_check_status(_E_UD_);
-            bool is_float = board_key->get_check_status(_E_FF_);
-            bool is_double = board_key->get_check_status(_E_FD_);
-            std::string ret_integer;
-            std::string ret_float;
-            std::string hex = Fbyte::sto_hex(shex);
+        bool is_swap = board_key->get_check_status(_E_BW_);
+        if(is_swap) { sbyte = Fbyte::sbyte_swap_endian(sbyte); }
 
-            ret_integer = fn_to_str_integer(hex,is_unsigned,is_swap);
-            ret_float = fn_to_str_float(hex,is_unsigned,is_swap,is_float,is_double);
-
-            if(fn_is_focus(sp_focus_float) == false)
-            {
-                edt_float->setText(QString::fromStdString(ret_float));
-            }
-            if(fn_is_focus(sp_focus_integer) == false)
-            {
-                edt_integer->setText(QString::fromStdString(ret_integer));
-            }
-        }
+        int size = fn_get_size();
+        if(fn_is_focus(sp_focus_float) == false) { fn_show_F(sbyte,size); }
+        if(fn_is_focus(sp_focus_integer) == false) { fn_show_D(sbyte,size); }
+        if(fn_is_focus(sp_focus_hex) == false) { fn_show_HEX(sbyte,size); }
     };
 
     auto fn_to_MVL = [=](){
@@ -258,47 +190,35 @@ void main_window::init_wid(QWidget *parent)
     };
 
     auto fn_calc_formula = [=](){
+        int size = fn_get_size();
         QString txt = edt_calc->text();
-        std::string ret_integer;
-        std::string ret_sbyte;
-        bool is_swap = board_key->get_check_status(_E_BW_);
-        bool is_unsigned = board_key->get_check_status(_E_UD_);
-        bool is_float = board_key->get_check_status(_E_FF_);
-        bool is_double = board_key->get_check_status(_E_FD_);
-
-        int bsize = board_key->to_bit_size(board_key->get_bt_group()) / 8;
         auto ret = Fcalc::parse_calc_ls(txt.toStdString());
-        vlogd($(txt.toStdString()));
         if(ret.is_valid())
         {
+            super_var_t sret;
             if(Fcalc::is_float(ret))
             {
-                ret_sbyte = fn_to_sbyte_float(ret._value,bsize);
+                if(size == 4) { sret._ff = Fbyte::Tfrom_string<float>(ret._value); }
+                if(size == 8) { sret._fd = Fbyte::Tfrom_string<double>(ret._value); }
+                board_binary->set_binary_valid(QString::fromStdString(fn_from_sfloat(sret,size)));
             }
             else 
             {
-                ret_sbyte = fn_to_sbyte_integer(ret._value,bsize,is_swap);
+                sret._t64 = Fbyte::Tfrom_string<int64_t>(ret._value);
+                board_binary->set_binary_valid(QString::fromStdString(fn_from_sint(sret,size)));
             }
-            vlogd($(ret._value));
-            board_binary->set_binary_valid(QString::fromStdString(ret_sbyte));
         }
-        else 
-        {
-            board_binary->clear_data_ls();
-        }
+        else { board_binary->clear_data_ls(); }
     };
-
     auto fn_calc_clear = [=](){
         edt_calc->setText("");
         fn_calc_formula();
     };
-
     auto fn_calc_delete = [=](){
         QString txt = edt_calc->text();
         edt_calc->setText(QString(txt.begin(),txt.size() -1));
         fn_calc_formula();
     };
-
     auto fn_append_calc = [=](const QString &symbol){
         QString txt = edt_calc->text();
         txt += symbol;
@@ -307,19 +227,22 @@ void main_window::init_wid(QWidget *parent)
     };
 
     auto fn_edit_float = [=](const QString &str){
-
-        bool is_float = board_key->get_check_status(_E_FF_);
-        bool is_double = board_key->get_check_status(_E_FD_);
-        if(is_float)
+        bool is_swap = board_key->get_check_status(_E_BW_);
+        int size = fn_get_size();
+        if(size == 4)
         {
             float val = Fbyte::Tfrom_string<float>(str.toStdString());
+            if(is_swap) { val = Fbyte::Tto_swap_endian<float>(val); }
+
             std::string hex = Fbyte::Tmem_str<float>(val);
             std::string sbyte = Fbyte::to_strbyte(hex);
             board_binary->set_binary_valid(QString::fromStdString(sbyte));
         }
-        if(is_double)
+        if(size == 8)
         {
             double val = Fbyte::Tfrom_string<double>(str.toStdString());
+            if(is_swap) { val = Fbyte::Tto_swap_endian<float>(val); }
+
             std::string hex = Fbyte::Tmem_str<double>(val);
             std::string sbyte = Fbyte::to_strbyte(hex);
             board_binary->set_binary_valid(QString::fromStdString(sbyte));
@@ -337,20 +260,14 @@ void main_window::init_wid(QWidget *parent)
             if(is_unsigned)
             {
                 uint8_t ret = str.toUShort();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<uint8_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<uint8_t>(ret); }
                 auto s = Fbyte::Tmem_str<uint8_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
             else 
             {
                 int8_t ret = str.toShort();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<int8_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<int8_t>(ret); }
                 auto s = Fbyte::Tmem_str<int8_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
@@ -360,20 +277,14 @@ void main_window::init_wid(QWidget *parent)
             if(is_unsigned)
             {
                 uint16_t ret = str.toUShort();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<uint16_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<uint16_t>(ret); }
                 auto s = Fbyte::Tmem_str<uint16_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
             else 
             {
                 int16_t ret = str.toShort();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<int16_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<int16_t>(ret); }
                 auto s = Fbyte::Tmem_str<int16_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
@@ -383,20 +294,14 @@ void main_window::init_wid(QWidget *parent)
             if(is_unsigned)
             {
                 uint32_t ret = str.toUInt();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<int32_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<int32_t>(ret); }
                 auto s = Fbyte::Tmem_str<uint32_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
             else 
             {
                 int32_t ret = str.toInt();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<int32_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<int32_t>(ret); }
                 auto s = Fbyte::Tmem_str<int32_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
@@ -406,20 +311,14 @@ void main_window::init_wid(QWidget *parent)
             if(is_unsigned)
             {
                 uint64_t ret = str.toULongLong();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<uint64_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<uint64_t>(ret); }
                 auto s = Fbyte::Tmem_str<uint64_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
             else 
             {
                 int64_t ret = str.toLongLong();
-                if(is_swap)
-                {
-                    ret = Fbyte::Tto_swap_endian<int64_t>(ret);
-                }
+                if(is_swap) { ret = Fbyte::Tto_swap_endian<int64_t>(ret); }
                 auto s = Fbyte::Tmem_str<int64_t>(ret);
                 ret_integer = Fbyte::hto_sbyte(s);
             }
@@ -437,16 +336,22 @@ void main_window::init_wid(QWidget *parent)
 
         if(is_16H)
         {
-            auto hex = Fbyte::sto_hex(str.toStdString());
+            auto astr = str;
+            if(astr.size() % 2 != 0) { astr.insert(0,'0'); }
+            auto hex = Fbyte::sto_hex(astr.toStdString());
+
             auto sbyte = Fbyte::to_strbyte(hex);
+            std::reverse(sbyte.begin(),sbyte.end());
             
             std::string sbv;
             sbv.resize(board_binary->get_binary_valid().size());
             std::fill(sbv.begin(),sbv.end(),'0');
+
             for(int i=0;i<sbv.size() && i<sbyte.size();i++)
             {
                 sbv[i] = sbyte[i];
             }
+            std::reverse(sbv.begin(),sbv.end());
             board_binary->set_binary_valid(QString::fromStdString(sbv));
         }
         if(is_10D)
@@ -455,12 +360,13 @@ void main_window::init_wid(QWidget *parent)
         }
         if(is_8O)
         {
-            auto soct = str.toStdString();
-            auto sbyte = Fbyte::soct_sbyte(soct);
+            auto sbyte = Fbyte::soct_sbyte(str.toStdString());
+            std::reverse(sbyte.begin(),sbyte.end());
 
             std::string sbv;
             sbv.resize(board_binary->get_binary_valid().size());
             std::fill(sbv.begin(),sbv.end(),'0');
+
             for(int i=0;i<sbv.size() && i<sbyte.size();i++)
             {
                 sbv[i] = sbyte[i];
@@ -479,6 +385,7 @@ void main_window::init_wid(QWidget *parent)
             {
                 sbv[i] = sbyte[i];
             }
+            std::reverse(sbv.begin(),sbv.end());
             board_binary->set_binary_valid(QString::fromStdString(sbv));
         }
     };
@@ -537,6 +444,7 @@ void main_window::init_wid(QWidget *parent)
         if(board_key->is_bt_symbol(symbol))
         {
             board_binary->set_bit_size(board_key->to_bit_size(symbol));
+            edt_calc->setText("");
         }
         fn_update_data();
     });

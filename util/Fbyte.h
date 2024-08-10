@@ -375,31 +375,43 @@ struct Fbyte
     static inline std::string sbyte_soct(std::string s)
     {
         std::string ret;
-        std::reverse(s.begin(),s.end());
-        int index = 0;
-        for(int i=0;i<s.size();i=i+3)
-        {
-            index = i+3;
-            int sum = 0;
-            if(s[i] == '1') { sum += 1; }
-            if(s[i+1] == '1') { sum += 2; }
-            if(s[i+2] == '1') { sum += 4; }
-            ret += Tto_string(sum);
-        }
-        vlogd($(index) $(s.size()));
-
-        int sum = 0;
         int count = 0;
-        while (index < s.size())
+        int sum = 0;
+        for(int i=0;i<s.size();i++)
         {
-            if(s[index] == '1') { sum += (2^count); };
-            index++;
+            if(s[i] == '1')
+            {
+                if(count == 0) { sum += 1; }
+                if(count == 1) { sum += 2; }
+                if(count == 2) { sum += 4; }
+            }
             count++;
+            if(count == 3)
+            {
+                ret += Tto_string(sum);
+                count = 0;
+                sum = 0;
+            }
         }
-        if(sum != 0)
+        if(count != 0)
         {
             ret += Tto_string(sum);
         }
+
+        // vlogd($(index) $(s.size()));
+
+        // int sum = 0;
+        // int count = 0;
+        // while (index < s.size())
+        // {
+        //     if(s[index] == '1') { sum += (2^count); };
+        //     index++;
+        //     count++;
+        // }
+        // if(sum != 0)
+        // {
+        //     ret += Tto_string(sum);
+        // }
         return ret;
     }
 
@@ -407,9 +419,9 @@ struct Fbyte
     static inline std::string coct_sbyte(char c)
     {
         std::string ret = "000";
-        if(_char_low_byte_4_ & c) { ret[0] = '1'; }
-        if(_char_low_byte_2_ & c) { ret[1] = '1'; }
-        if(_char_low_byte_1_ & c) { ret[2] = '1'; }
+        if(_char_low_byte_4_ & (c - '0')) { ret[0] = '1'; }
+        if(_char_low_byte_2_ & (c - '0')) { ret[1] = '1'; }
+        if(_char_low_byte_1_ & (c - '0')) { ret[2] = '1'; }
         return ret;
     }
 
@@ -419,7 +431,8 @@ struct Fbyte
         std::string ret;
         for(int i=0;i<s.size();i++)
         {   
-            ret += coct_sbyte(s[i]);
+            std::string cc = coct_sbyte(s[i]);
+            ret += cc;
         }
         return ret;
     }
@@ -437,6 +450,33 @@ struct Fbyte
         }
         return ret;
     }
+
+    // 二进制字符串转十六进制
+    static inline std::string sbyte_hex(const std::string &s)
+    {
+        std::string ret;
+        for(int i=0;i<s.size();i=i+8)
+        {
+            std::string part(s.begin() +i,s.begin() +i +8);
+            char c = sbyte_char(part);
+            ret.push_back(c);
+        }
+        return ret;
+    }
+
+    // 二进制字符转换字节序
+    static inline std::string sbyte_swap_endian(const std::string &s)
+    {
+        std::string ret;
+
+        for(int i=0;i<s.size();i=i+8)
+        {
+            std::string part(s.begin() +i,s.begin() +i +8);
+            ret.insert(ret.begin(),part.begin(),part.end());
+        }
+        return ret;
+    }
+
 
     // 转8位二进制字符串-未知长度
     template<typename T>

@@ -48,8 +48,6 @@ static QString _E_BKL_ = "(";
 static QString _E_BKR_ = ")";
 static QString _E_CLR_ = "[C]";
 static QString _E_DEL_ = "[D]";
-static QString _E_FD_ = "[FD]";
-static QString _E_FF_ = "[FF]";
 static QString _E_UD_ = "[UD]";
 static QString _E_BW_ = "[BW]";
 

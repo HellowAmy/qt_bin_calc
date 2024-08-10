@@ -6,8 +6,8 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
     this->setObjectName("QFrameInputKeyBoard");
 
     _vec_input_but_word = {
-        {_E_NULL_,  _E_NULL_,   _E_F_,  _E_FD_,     _E_FF_,     _E_UD_,     _E_BW_      },
-        {_E_MVL_,   _E_MVR_,    _E_E_,  _E_BKL_,    _E_BKR_,    _E_CLR_,    _E_DEL_     },
+        {_E_NULL_,  _E_NULL_,   _E_F_,  _E_MVL_,    _E_MVR_,    _E_UD_,     _E_BW_      },
+        {_E_NULL_,  _E_NULL_,   _E_E_,  _E_BKL_,    _E_BKR_,    _E_CLR_,    _E_DEL_     },
         {_E_16H_,   _E_8BT_,    _E_D_,  _E_1_,      _E_2_,      _E_3_,      _E_ADD_     },
         {_E_10D_,   _E_4BT_,    _E_C_,  _E_4_,      _E_5_,      _E_6_,      _E_SUB_     },
         {_E_8O_,    _E_2BT_,    _E_B_,  _E_7_,      _E_8_,      _E_9_,      _E_MULT_    },
@@ -24,7 +24,7 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
     _set_checkable = {
         _E_16H_,    _E_10D_,    _E_8O_,     _E_2B_, 
         _E_8BT_,    _E_4BT_,    _E_2BT_,    _E_1BT_, 
-        _E_FD_,     _E_FF_,     _E_UD_,     _E_BW_
+        _E_UD_,     _E_BW_
     };
 
     _set_base = {
@@ -67,7 +67,6 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
 
     uncheck_group(_E_16H_,_set_base);
     uncheck_group(_E_8BT_,_set_bt);
-    set_check_status(_E_UD_,true);
 }
 
 wid_input::~wid_input()
@@ -165,16 +164,9 @@ QString wid_input::get_bt_group()
 bool wid_input::update_checkble(QPushButton *but)
 {
     auto symbol = but->text();
-    
     if(uncheck_group(symbol,_set_base)) { }
     else if(uncheck_group(symbol,_set_bt)) { }
-    else 
-    { 
-        if(symbol == _E_FF_) { _map_but[_E_FD_]->setChecked(false); }
-        else if(symbol == _E_FD_) { _map_but[_E_FF_]->setChecked(false); }
-        return false;
-    }
-
+    else { return false; }
     return true;
 }
 

@@ -459,6 +459,212 @@ void test_8()
     }
 }
 
+
+
+
+void test_9()
+{
+    union ccudata
+    {
+        int64_t _t64;
+        int32_t _t32;
+        int16_t _t16;
+        int8_t _t8;
+        uint64_t _ut64;
+        uint32_t _ut32;
+        uint16_t _ut16;
+        uint8_t _ut8;
+    };
+
+    {
+        ccudata tr;
+        tr._t64 = 255;
+
+        auto vt64   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t64));
+        auto vt32   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t32));
+        auto vt16   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t16));
+        auto vt8    = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t8));
+        auto vut64  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut64));
+        auto vut32  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut32));
+        auto vut16  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut16));
+        auto vut8   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut8));
+
+        vlogd($(tr._t64) $(tr._t32) $(tr._t16) $((short)tr._t8) $(tr._ut64) $(tr._ut32) $(tr._ut16) $((unsigned short)tr._ut8));
+        vlogd($(vt64) $(vt32) $(vt16) $(vt8));
+        vlogd($(vut64) $(vut32) $(vut16) $(vut8));
+
+        int64_t rv64 = Fbyte::Tmem_str<int64_t>(Fbyte::sbyte_hex(vt64));
+        int64_t rv32 = Fbyte::Tmem_str<int32_t>(Fbyte::sbyte_hex(vt32));
+        int64_t rv16 = Fbyte::Tmem_str<int16_t>(Fbyte::sbyte_hex(vt16));
+        int64_t rv8  = Fbyte::Tmem_str<int8_t> (Fbyte::sbyte_hex(vt8));
+        uint64_t ruv64   = Fbyte::Tmem_str<uint64_t>(Fbyte::sbyte_hex(vut64));
+        uint64_t ruv32   = Fbyte::Tmem_str<uint32_t>(Fbyte::sbyte_hex(vut32));
+        uint64_t ruv16   = Fbyte::Tmem_str<uint16_t>(Fbyte::sbyte_hex(vut16));
+        uint64_t ruv8    = Fbyte::Tmem_str<uint8_t>(Fbyte::sbyte_hex(vut8));
+        vlogd($(rv64) $(rv32) $(rv16) $(rv8) $(ruv64) $(ruv32) $(ruv16) $(ruv8) );
+    }
+    {
+        ccudata tr;
+        tr._t64 = 1970324954416903;
+//0000011100000000000000000000000000000000000000000000000000000000
+//0000000000000000000000000000000000000000000000000000000000000111
+//0000000000000111000000000000000000000111000000000000011100000111
+//0000000000000111000000000000000000000111000000000000011100000111
+        auto vt64   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t64));
+        auto vt32   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t32));
+        auto vt16   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t16));
+        auto vt8    = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._t8));
+        auto vut64  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut64));
+        auto vut32  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut32));
+        auto vut16  = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut16));
+        auto vut8   = Fbyte::to_strbyte(Fbyte::Tmem_str(tr._ut8));
+
+        vlogd($(tr._t64) $(tr._t32) $(tr._t16) $((short)tr._t8) $(tr._ut64) $(tr._ut32) $(tr._ut16) $((unsigned short)tr._ut8));
+        vlogd($(vt64) $(vt32) $(vt16) $(vt8));
+        vlogd($(vut64) $(vut32) $(vut16) $(vut8));
+
+        auto wvt64 = Fbyte::sbyte_swap_endian(vt64);
+        auto wvt32 = Fbyte::sbyte_swap_endian(vt32);
+        auto wvt16 = Fbyte::sbyte_swap_endian(vt16);
+        auto wvt8 = Fbyte::sbyte_swap_endian(vt8);
+        auto wuvt64 = Fbyte::sbyte_swap_endian(vut64);
+        auto wuvt32 = Fbyte::sbyte_swap_endian(vut32);
+        auto wuvt16 = Fbyte::sbyte_swap_endian(vut16);
+        auto wuvt8 = Fbyte::sbyte_swap_endian( vut8);
+
+        vlogd($(wvt64) $(wvt32) $(wvt16) $(wvt8));
+        vlogd($(wuvt64) $(wuvt32) $(wuvt16) $(wuvt8));
+
+
+        int64_t rv64 = Fbyte::Tmem_str<int64_t>(Fbyte::sbyte_hex(vt64));
+        int64_t rv32 = Fbyte::Tmem_str<int32_t>(Fbyte::sbyte_hex(vt32));
+        int64_t rv16 = Fbyte::Tmem_str<int16_t>(Fbyte::sbyte_hex(vt16));
+        int64_t rv8  = Fbyte::Tmem_str<int8_t> (Fbyte::sbyte_hex(vt8));
+        uint64_t ruv64   = Fbyte::Tmem_str<uint64_t>(Fbyte::sbyte_hex(vut64));
+        uint64_t ruv32   = Fbyte::Tmem_str<uint32_t>(Fbyte::sbyte_hex(vut32));
+        uint64_t ruv16   = Fbyte::Tmem_str<uint16_t>(Fbyte::sbyte_hex(vut16));
+        uint64_t ruv8    = Fbyte::Tmem_str<uint8_t>(Fbyte::sbyte_hex(vut8));
+        vlogd($(rv64) $(rv32) $(rv16) $(rv8) $(ruv64) $(ruv32) $(ruv16) $(ruv8) );
+    }
+
+    {
+        int64_t val = 123456789;
+        auto byte = Fbyte::Tmem_str<int64_t>(val);
+        auto hex = Fbyte::hto_hex(byte);
+
+        int16_t val16 = Fbyte::Tmem_str<int16_t>(byte);
+        uint16_t uval16 = Fbyte::Tmem_str<uint16_t>(byte);
+        int64_t val64 = Fbyte::Tmem_str<int64_t>(byte);
+        uint64_t uval64 = Fbyte::Tmem_str<uint64_t>(byte);
+        auto shex = Fbyte::to_strbyte(byte);
+        vlogd($(hex) $(val16) $(val64)  $(uval16) $(uval64) $(val) $(shex));
+    }
+    {
+        int64_t val = 8;
+        auto byte = Fbyte::Tmem_str<int64_t>(val);
+        
+        val = Fbyte::Tto_swap_endian<int64_t>(val);
+        auto rebyte = Fbyte::Tmem_str<int64_t>(val);
+
+        int16_t wval16 = Fbyte::Tmem_str<int16_t>(rebyte);
+        int64_t wval64 = Fbyte::Tmem_str<int64_t>(rebyte);
+        int16_t val16 = Fbyte::Tmem_str<int16_t>(byte);
+        int64_t val64 = Fbyte::Tmem_str<int64_t>(byte);
+
+        vlogd($(val) $(byte) $(rebyte) $(val16) $(val64) $(wval16) $(wval64));
+    }
+    {
+        int16_t val = 8;
+        auto byte = Fbyte::Tmem_str<int16_t>(val);
+        
+        val = Fbyte::Tto_swap_endian<int16_t>(val);
+        auto rebyte = Fbyte::Tmem_str<int16_t>(val);
+
+        int16_t wval16 = Fbyte::Tmem_str<int16_t>(rebyte);
+        int64_t wval64 = Fbyte::Tmem_str<int64_t>(rebyte);
+        int16_t val16 = Fbyte::Tmem_str<int16_t>(byte);
+        int64_t val64 = Fbyte::Tmem_str<int64_t>(byte);
+
+        vlogd($(val) $(byte) $(rebyte) $(val16) $(val64) $(wval16) $(wval64));
+    }
+
+
+    {
+        int16_t val = 10;
+        auto byte = Fbyte::Tmem_str(val);
+        auto hex = Fbyte::hto_hex(byte);
+
+        int16_t val16 = Fbyte::Tmem_str<int16_t>(byte);
+        int64_t val64 = Fbyte::Tmem_str<int64_t>(byte);
+
+        vlogd($(hex) $(val16) $(val64) $(val));
+    }
+
+}
+
+void test_10()
+{
+    {
+        auto s = Fbyte::coct_sbyte('0');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('1');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('2');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('3');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('4');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('5');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('6');
+        vlogd($(s));
+    }
+    {
+        auto s = Fbyte::coct_sbyte('7');
+        vlogd($(s));
+    }
+
+    {
+        auto s = Fbyte::soct_sbyte("777");
+        vlogd($(s) $(s.size()));
+    }
+    {
+        auto s = Fbyte::soct_sbyte("717");
+        vlogd($(s) $(s.size()));
+    }
+    {
+        auto sbyte = Fbyte::soct_sbyte("1234577777777777777712");
+        vlogd($(sbyte) $(sbyte.size()));
+
+        std::reverse(sbyte.begin(),sbyte.end());
+
+        std::string sbv;
+        sbv.resize(64);
+        std::fill(sbv.begin(),sbv.end(),'0');
+
+        for(int i=0;i<sbv.size() && i<sbyte.size();i++)
+        {
+            sbv[i] = sbyte[i];
+        }
+        std::reverse(sbv.begin(),sbv.end());
+        vlogd($(sbv));
+    }
+
+}
+
 // 读取指定目录下的所有样式表
 QString read_file_qss(QString path)
 {
@@ -487,7 +693,7 @@ int run_main_app(int argc, char *argv[])
 
     auto sstyle = read_file_qss("../config/style/default/");
     qApp->setStyleSheet(sstyle);
-    vlogd($Q(sstyle));
+    // vlogd($Q(sstyle));
 
     main_window w;
     w.show();
@@ -519,7 +725,7 @@ int main(int argc, char *argv[])
 
 
 #if 0
-    test_8();
+    test_10();
     return 0;
 #endif
 
