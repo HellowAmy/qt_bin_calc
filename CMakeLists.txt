@@ -43,7 +43,7 @@ endfunction()
 # ===== 编译入口 =====
 # 项目名
 cmake_minimum_required(VERSION 3.22.1)
-project(hellow)
+project(calcbin)
 
 
 # C++ 11 版本
