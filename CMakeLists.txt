@@ -53,8 +53,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 
 # 调试模式
-set(CMAKE_BUILD_TYPE "Debug")
-# set(CMAKE_BUILD_TYPE "Release")
+# set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 
 
 # 源文件 : 包含源文件
@@ -126,7 +126,11 @@ include_directories(${PRO_HEAD_DIR})
 
 
 # 生成目标
-add_executable(${CMAKE_PROJECT_NAME} ${PRO_SRC_FILES})
+if(WIN32)
+    add_executable(${CMAKE_PROJECT_NAME} WIN32 ${PRO_SRC_FILES})
+else()
+    add_executable(${CMAKE_PROJECT_NAME} ${PRO_SRC_FILES})
+endif()
 
 
 # 链接库
