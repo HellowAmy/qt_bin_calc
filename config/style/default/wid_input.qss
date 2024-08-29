@@ -1,3 +1,8 @@
+* {
+    font-family: Consolas;
+    font-size: 15px;
+}
+
 QPushButton#QPushButtonInputSymbol {
     border: 1px solid rgba(120, 120, 120, 50);
     background-color: rgba(186, 221, 255, 50);
