@@ -14,7 +14,7 @@ main_window::main_window(QWidget *parent) : QWidget(parent)
 #endif
 
     this->setWindowTitle(QString("Calculator [ %1 ]").arg(endina));
-    this->setWindowIcon(QIcon("../config/pic/calc.png"));
+    this->setWindowIcon(QIcon("../config/pic/logo.ico"));
 
 #if 1
     init_wid(parent);
