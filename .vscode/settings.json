@@ -64,6 +64,7 @@
         "set": "cpp",
         "sstream": "cpp",
         "strstream": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "optional": "cpp"
     }
 }

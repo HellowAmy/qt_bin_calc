@@ -477,6 +477,36 @@ struct Fbyte
         return ret;
     }
 
+    // 十六进制字符串转十进制字符串
+    static inline std::string shex_sint(std::string s)
+    {
+        std::string ret;
+
+        if(s.size()%2 != 0)
+        {
+            s.insert(s.begin(),'0');
+        }
+
+        std::string shex;
+        for(int i=0;i<s.size();i=i=i+2)
+        {
+            char cl = s[i];
+            char cr = s[i+1];
+            char cb = to_hex_byte(cl,cr);
+            shex += char_sbyte(cb);
+        }
+        unsigned long long val = 0;
+        std::reverse(shex.begin(),shex.end());
+        for(int i=0;i<shex.size();i++)
+        {
+            if(shex[i] == '1')
+            {
+                val += std::pow(2,i);
+            }
+        }
+        return Tto_string(val);
+    }
+
 
     // 转8位二进制字符串-未知长度
     template<typename T>

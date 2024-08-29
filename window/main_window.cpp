@@ -194,7 +194,7 @@ void main_window::init_wid(QWidget *parent)
     auto fn_calc_formula = [=](){
         int size = fn_get_size();
         QString txt = edt_calc->text();
-        auto ret = Fcalc::parse_calc_ls(txt.toStdString());
+        auto ret = Fcalc::parse_calc_ls(txt.toStdString(),board_key->get_check_status(_E_HC_));
         if(ret.is_valid())
         {
             super_var_t sret;
@@ -206,8 +206,16 @@ void main_window::init_wid(QWidget *parent)
             }
             else 
             {
-                sret._t64 = Fbyte::Tfrom_string<int64_t>(ret._value);
-                board_binary->set_binary_valid(QString::fromStdString(fn_from_sint(sret,size)));
+                if(ret._type == calc_object_t::e_hex)
+                {
+                    sret._t64 = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(ret._value));
+                    board_binary->set_binary_valid(QString::fromStdString(fn_from_sint(sret,size)));
+                }
+                else 
+                {
+                    sret._t64 = Fbyte::Tfrom_string<int64_t>(ret._value);
+                    board_binary->set_binary_valid(QString::fromStdString(fn_from_sint(sret,size)));
+                }
             }
         }
         else { board_binary->clear_data_ls(); }
@@ -396,6 +404,10 @@ void main_window::init_wid(QWidget *parent)
         fn_calc_formula();
     };
 
+    auto fn_to_HC = [=](){
+        fn_calc_formula();
+    };
+
     connect(edt_float,&input_edit::textEdited,[=](const QString &str){
         vlogd($Q(str));
         fn_switch_focus(sp_focus_float);
@@ -437,6 +449,7 @@ void main_window::init_wid(QWidget *parent)
         vlogd($Q(symbol) $(check));
         fn_switch_focus(sp_focus_key);
 
+        if(symbol == _E_HC_) { fn_to_HC(); }
         fn_update_data();
     });
     connect(board_key,&wid_input::sn_check_group,[=](const QString &symbol){

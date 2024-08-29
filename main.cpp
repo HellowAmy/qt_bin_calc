@@ -94,17 +94,17 @@ void test_1()
 
 void test_2()
 {
-    auto ret = Fcalc::parse_calc_ls("3+1+(4+10)+2.1+1.1");
-    if(Fcalc::is_float(ret))
-    {
-        auto s1 = Fcalc::to_type_float(ret);
-        vlogd($(s1));
-    }
-    else 
-    {
-        auto s1 = Fcalc::to_type_integer(ret);
-        vlogd($(s1));
-    }
+    // auto ret = Fcalc::parse_calc_ls("3+1+(4+10)+2.1+1.1");
+    // if(Fcalc::is_float(ret))
+    // {
+    //     auto s1 = Fcalc::to_type_float(ret);
+    //     vlogd($(s1));
+    // }
+    // else 
+    // {
+    //     auto s1 = Fcalc::to_type_integer(ret);
+    //     vlogd($(s1));
+    // }
 }
 
 void test_3()
@@ -115,7 +115,7 @@ void test_3()
 
 void test_4()
 {
-#if 1
+#if 0
     // 浮点测试
     {
         auto ret = Fcalc::parse_calc_ls("1+2");
@@ -128,7 +128,7 @@ void test_4()
 #endif
 
 
-#if 1
+#if 0
     // 括号测试
     {
         auto ret = Fcalc::parse_calc_ls("4-(1+2)");
@@ -168,7 +168,7 @@ void test_4()
     }
 #endif
 
-#if 1
+#if 0
     // 符号测试
     {
         auto ret = Fcalc::parse_calc_ls("1+2+3");
@@ -204,7 +204,7 @@ void test_4()
     }
 #endif
 
-#if 1
+#if 0
     // 组合测试
     {
         // 2-((3+3*4)/2+4-2*2)/(2.0+2)*(2*2)+(4-5)-(20.5+8)+(4.5*2)
@@ -237,7 +237,7 @@ void test_4()
     }
 #endif
 
-#if 1
+#if 0
     // 非法测试
     {
         auto ret = Fcalc::parse_calc_ls("1 + 2"); 
@@ -269,6 +269,7 @@ void test_4()
 
 void test_5()
 {
+#if 0
     {
         auto ret = Fcalc::parse_calc_ls("1+2"); 
         if(ret.is_valid())
@@ -321,7 +322,7 @@ void test_5()
             vlogd($(val));
         }
     }
-
+#endif
 }
 
 // 从0-20转-72~12
@@ -665,6 +666,43 @@ void test_10()
 
 }
 
+
+void test_11()
+{
+    {
+        auto s = Fbyte::shex_sint("0f");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("f");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("f0");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("ff");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("f1");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("88");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("188");
+        vlogd($(s) );
+    }
+    {
+        auto s = Fbyte::shex_sint("2fc");
+        vlogd($(s) );
+    }
+}
+
 // 读取指定目录下的所有样式表
 QString read_file_qss(QString path)
 {
@@ -725,7 +763,7 @@ int main(int argc, char *argv[])
 
 
 #if 0
-    test_10();
+    test_11();
     return 0;
 #endif
 

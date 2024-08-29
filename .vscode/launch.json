@@ -28,7 +28,7 @@
                 }
             ],
             "preLaunchTask": "Run Main Group",
-            "visualizerFile": "/home/cong/.config/Code/User/workspaceStorage/a32a48df1cfd737396b96a89b4b30634/tonka3000.qtvsctools/qt.natvis.xml"
+            "visualizerFile": "/home/red/.config/Code/User/workspaceStorage/7146f6a30ade601722f86f09fce7fc9b/tonka3000.qtvsctools/qt.natvis.xml"
         },
         {
             "name": "Run Main [Build]",
@@ -50,7 +50,7 @@
                 }
             ],
             "preLaunchTask": "CMake Build",
-            "visualizerFile": "/home/cong/.config/Code/User/workspaceStorage/a32a48df1cfd737396b96a89b4b30634/tonka3000.qtvsctools/qt.natvis.xml"
+            "visualizerFile": "/home/red/.config/Code/User/workspaceStorage/7146f6a30ade601722f86f09fce7fc9b/tonka3000.qtvsctools/qt.natvis.xml"
         }
     ]
 }

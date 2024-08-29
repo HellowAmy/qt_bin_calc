@@ -22,40 +22,61 @@ typedef const std::string & cstr;
 
 struct calc_object_t
 {
+    enum en_type
+    {
+        e_integer,
+        e_float,
+        e_symbol,
+        e_hex,
+        e_null,
+    };
+
     calc_object_t() { }
 
-    calc_object_t(bool is_integer,bool is_float,bool is_symbol,sstr value) 
-        : _is_integer(is_integer),_is_float(is_float),_is_symbol(is_symbol),_value(value) { }
+    calc_object_t(en_type type,sstr value) : _type(type), _value(value) { }
     
     void set_int(cstr s)
     {
-        _is_integer = true;
+        _type = e_integer;
         _value = s;
     }
     void set_float(cstr s)
     {
-        _is_float = true;
+        _type = e_float;
         _value = s;
     }
 
     void set_symbol(cstr s)
     {
-        _is_symbol = true;
+        _type = e_symbol;
+        _value = s;
+    } 
+
+    void set_hex(cstr s)
+    {
+        _type = e_hex;
         _value = s;
     } 
 
     bool is_valid()
     {
-        if(_is_integer || _is_float || _is_symbol) 
+        if(_type != e_null) 
         { 
             return true; 
         }
         return false;
     }
 
-    bool _is_integer = false;
-    bool _is_float = false;
-    bool _is_symbol = false;
+    bool equal_type(en_type type) const
+    {
+        if(_type == type)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    en_type _type = e_null;
     sstr _value;
 };
 
@@ -77,20 +98,29 @@ struct Tcalc_result_add : public Tcalc_result_template
     static calc_t calc_formula(ccalc_t a,ccalc_t b)
     {
         calc_object_t ret;
-        if(a._is_float || b._is_float)
+        if(a.equal_type(calc_t::e_float) || b.equal_type(calc_t::e_float))
         {
             double va = Fbyte::Tfrom_string<double>(a._value);
             double vb = Fbyte::Tfrom_string<double>(b._value);
             double vs = va + vb;
             ret.set_float(Fbyte::Tto_string(vs));
         }
-        else 
+        else if(a.equal_type(calc_t::e_integer) || b.equal_type(calc_t::e_integer))
         {
             int64_t va = Fbyte::Tfrom_string<int64_t>(a._value);
             int64_t vb = Fbyte::Tfrom_string<int64_t>(b._value);
             int64_t vs = va + vb;
             ret.set_int(Fbyte::Tto_string(vs));
         }
+        else if(a.equal_type(calc_t::e_hex) || b.equal_type(calc_t::e_hex))
+        {
+            int64_t va = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(a._value));
+            int64_t vb = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(b._value));
+            int64_t vs = va + vb;
+            ret.set_int(Fbyte::Tto_string(vs));
+            vlogd($(vs));
+        }
+        vlogd($(a._value)$(b._value));
         return ret;
     }   
     static std::string get_symbol()
@@ -110,17 +140,24 @@ struct Tcalc_result_sub : public Tcalc_result_template
     static calc_t calc_formula(ccalc_t a,ccalc_t b)
     {
         calc_object_t ret;
-        if(a._is_float || b._is_float)
+        if(a.equal_type(calc_t::e_float) || b.equal_type(calc_t::e_float))
         {
             double va = Fbyte::Tfrom_string<double>(a._value);
             double vb = Fbyte::Tfrom_string<double>(b._value);
             double vs = va - vb;
             ret.set_float(Fbyte::Tto_string(vs));
         }
-        else 
+        else if(a.equal_type(calc_t::e_integer) || b.equal_type(calc_t::e_integer)) 
         {
             int64_t va = Fbyte::Tfrom_string<int64_t>(a._value);
             int64_t vb = Fbyte::Tfrom_string<int64_t>(b._value);
+            int64_t vs = va - vb;
+            ret.set_int(Fbyte::Tto_string(vs));
+        }
+        else if(a.equal_type(calc_t::e_hex) || b.equal_type(calc_t::e_hex))
+        {
+            int64_t va = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(a._value));
+            int64_t vb = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(b._value));
             int64_t vs = va - vb;
             ret.set_int(Fbyte::Tto_string(vs));
         }
@@ -143,17 +180,24 @@ struct Tcalc_result_mult : public Tcalc_result_template
     static calc_t calc_formula(ccalc_t a,ccalc_t b)
     {
         calc_object_t ret;
-        if(a._is_float || b._is_float)
+        if(a.equal_type(calc_t::e_float) || b.equal_type(calc_t::e_float))
         {
             double va = Fbyte::Tfrom_string<double>(a._value);
             double vb = Fbyte::Tfrom_string<double>(b._value);
             double vs = va * vb;
             ret.set_float(Fbyte::Tto_string(vs));
         }
-        else 
+        else if(a.equal_type(calc_t::e_integer) || b.equal_type(calc_t::e_integer)) 
         {
             int64_t va = Fbyte::Tfrom_string<int64_t>(a._value);
             int64_t vb = Fbyte::Tfrom_string<int64_t>(b._value);
+            int64_t vs = va * vb;
+            ret.set_int(Fbyte::Tto_string(vs));
+        }
+        else if(a.equal_type(calc_t::e_hex) || b.equal_type(calc_t::e_hex))
+        {
+            int64_t va = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(a._value));
+            int64_t vb = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(b._value));
             int64_t vs = va * vb;
             ret.set_int(Fbyte::Tto_string(vs));
         }
@@ -176,17 +220,24 @@ struct Tcalc_result_divi : public Tcalc_result_template
     static calc_t calc_formula(ccalc_t a,ccalc_t b)
     {
         calc_object_t ret;
-        if(a._is_float || b._is_float)
+        if(a.equal_type(calc_t::e_float) || b.equal_type(calc_t::e_float))
         {
             double va = Fbyte::Tfrom_string<double>(a._value);
             double vb = Fbyte::Tfrom_string<double>(b._value);
             double vs = va / vb;
             ret.set_float(Fbyte::Tto_string(vs));
         }
-        else 
+        else if(a.equal_type(calc_t::e_integer) || b.equal_type(calc_t::e_integer)) 
         {
             int64_t va = Fbyte::Tfrom_string<int64_t>(a._value);
             int64_t vb = Fbyte::Tfrom_string<int64_t>(b._value);
+            int64_t vs = va / vb;
+            ret.set_int(Fbyte::Tto_string(vs));
+        }
+        else if(a.equal_type(calc_t::e_hex) || b.equal_type(calc_t::e_hex))
+        {
+            int64_t va = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(a._value));
+            int64_t vb = Fbyte::Tfrom_string<int64_t>(Fbyte::shex_sint(b._value));
             int64_t vs = va / vb;
             ret.set_int(Fbyte::Tto_string(vs));
         }
@@ -220,25 +271,25 @@ struct Tcalc_result_base
     Tcalc_result_base()
     {
         {
-            _mp_opt_cb.emplace(calc_t(false,false,true,Tcalc_result_add::get_symbol())._value,
+            _mp_opt_cb.emplace(calc_t(calc_t::e_symbol,Tcalc_result_add::get_symbol())._value,
                 Tcala_t(Tcalc_result_add::get_level(), 
                     [](ccalc_t a,ccalc_t b) -> calc_object_t {
                         return Tcalc_result_add::calc_formula(a,b);
                     }
                 ));
-            _mp_opt_cb.emplace(calc_t(false,false,true,Tcalc_result_sub::get_symbol())._value,
+            _mp_opt_cb.emplace(calc_t(calc_t::e_symbol,Tcalc_result_sub::get_symbol())._value,
                 Tcala_t(Tcalc_result_sub::get_level(), 
                     [](ccalc_t a,ccalc_t b) -> calc_object_t {
                         return Tcalc_result_sub::calc_formula(a,b);
                     }
                 ));
-            _mp_opt_cb.emplace(calc_t(false,false,true,Tcalc_result_mult::get_symbol())._value,
+            _mp_opt_cb.emplace(calc_t(calc_t::e_symbol,Tcalc_result_mult::get_symbol())._value,
                 Tcala_t(Tcalc_result_mult::get_level(), 
                     [](ccalc_t a,ccalc_t b) -> calc_object_t {
                         return Tcalc_result_mult::calc_formula(a,b);
                     }
                 ));
-            _mp_opt_cb.emplace(calc_t(false,false,true,Tcalc_result_divi::get_symbol())._value,
+            _mp_opt_cb.emplace(calc_t(calc_t::e_symbol,Tcalc_result_divi::get_symbol())._value,
                 Tcala_t(Tcalc_result_divi::get_level(), 
                     [](ccalc_t a,ccalc_t b) -> calc_object_t {
                         return Tcalc_result_divi::calc_formula(a,b);
@@ -277,7 +328,7 @@ struct Tcalc_result_base
 template<typename T>
 struct Tcalc_stack
 {
-    bool calc_opt()
+    bool calc_opt(bool is_hex)
     {
         if(_nums.size() < 2)
         {
@@ -296,7 +347,13 @@ struct Tcalc_stack
         calc_object_t op = _symbols.top();
         _symbols.pop();
 
+        if(is_hex)
+        {
+            a._type = calc_object_t::e_hex;
+            b._type = calc_object_t::e_hex;
+        }
         calc_object_t ret = _calc.calc_formula(a,b,op);
+        ret._type = calc_object_t::e_integer;
         _nums.push(ret);
         // vlogd($(a._value) $(op._value) $(b._value) $(ret._value));
         return true;
@@ -327,7 +384,7 @@ struct Tcalc_stack
 
 struct Fcalc
 {
-    static calc_object_t parse_calc_ls(cstr s)
+    static calc_object_t parse_calc_ls(cstr s,bool is_hex)
     {
         Tcalc_stack<Tcalc_result_base> scalc;
 
@@ -336,13 +393,13 @@ struct Fcalc
             char c = s[i];
             if(c == '(')
             {
-                scalc._symbols.push(calc_object_t(false,false,true,{c}));
+                scalc._symbols.push(calc_object_t(calc_t::e_symbol,{c}));
             }
             else if(c == ')')
             {
                 while (scalc._symbols.empty() == false && scalc._symbols.top()._value != "(")
                 {
-                    bool ok = scalc.calc_opt();
+                    bool ok = scalc.calc_opt(is_hex);
                     if(ok == false)
                     {
                         break;
@@ -353,12 +410,12 @@ struct Fcalc
                     scalc._symbols.pop();
                 }
             }
-            else if(Fbyte::is_hex_digit(c))
+            else if(Fbyte::is_hex_range(c))
             {
                 char dot = '.';
                 size_t go = i;
                 sstr snum;
-                while (go < s.size() && (Fbyte::is_hex_digit(s[go]) || s[go] == dot)) 
+                while (go < s.size() && (Fbyte::is_hex_range(s[go]) || s[go] == dot)) 
                 {
                     snum.push_back(s[go]);
                     go++;
@@ -367,26 +424,30 @@ struct Fcalc
                 auto pf = Fbyte::find_flag_char(snum,dot);
                 if(pf.first)
                 {
-                    scalc._nums.push(calc_object_t(false,true,false,{snum}));
+                    scalc._nums.push(calc_object_t(calc_t::e_float,{snum}));
+                }
+                else if(is_hex)
+                {
+                    scalc._nums.push(calc_object_t(calc_t::e_hex,{snum}));
                 }
                 else 
                 {
-                    scalc._nums.push(calc_object_t(true,false,false,{snum}));
+                    scalc._nums.push(calc_object_t(calc_t::e_integer,{snum}));
                 }
             }
             else 
             {
                 if(i > 0 && s[i-1] == '(')
                 {
-                    scalc._nums.push(calc_object_t(true,false,false,{"0"}));
+                    scalc._nums.push(calc_object_t(calc_t::e_integer,{"0"}));
                 }
                 else if(i == 0 && s[i] == '-')
                 {
-                    scalc._nums.push(calc_object_t(true,false,false,{"0"}));
+                    scalc._nums.push(calc_object_t(calc_t::e_integer,{"0"}));
                 }
                 else if(i == 0 && s[i] == '+')
                 {
-                    scalc._nums.push(calc_object_t(true,false,false,{"0"}));
+                    scalc._nums.push(calc_object_t(calc_t::e_integer,{"0"}));
                 }
 
                 while (scalc._symbols.empty() == false && scalc._symbols.top()._value != "(") 
@@ -394,19 +455,19 @@ struct Fcalc
                     auto val = scalc._symbols.top()._value;
                     if(scalc._calc.calc_level(val,{c}) >= 0)
                     {
-                        bool ok = scalc.calc_opt();
+                        bool ok = scalc.calc_opt(is_hex);
                         if(ok == false) { break; }
                     }
                     else { break; }
                 }
-                scalc._symbols.push(calc_object_t(false,false,true,{c}));
+                scalc._symbols.push(calc_object_t(calc_t::e_symbol,{c}));
             }
 
         }
         
         while (scalc._symbols.empty() == false)
         {
-            bool ok = scalc.calc_opt();
+            bool ok = scalc.calc_opt(is_hex);
             if(ok == false) { break; }
         }
 
@@ -419,7 +480,7 @@ struct Fcalc
 
     static bool is_float(ccalc_t c)
     {
-        if(c._is_float)
+        if(c._type == calc_t::e_float)
         {
             return true;
         }
