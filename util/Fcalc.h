@@ -353,7 +353,14 @@ struct Tcalc_stack
             b._type = calc_object_t::e_hex;
         }
         calc_object_t ret = _calc.calc_formula(a,b,op);
-        ret._type = calc_object_t::e_integer;
+        if(a._type == calc_object_t::e_float || b._type == calc_object_t::e_float)
+        {
+            ret._type = calc_object_t::e_float;
+        }
+        else 
+        {
+            ret._type = calc_object_t::e_integer;
+        }
         _nums.push(ret);
         // vlogd($(a._value) $(op._value) $(b._value) $(ret._value));
         return true;
