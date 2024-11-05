@@ -51,6 +51,7 @@ static QString _E_DEL_ = "[D]";
 static QString _E_UD_ = "[UD]";
 static QString _E_BW_ = "[BW]";
 static QString _E_HC_ = "[HC]";
+static QString _E_TS_ = "[TS]";
 
 
 class wid_input : public QFrame

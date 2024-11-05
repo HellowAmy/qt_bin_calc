@@ -2,6 +2,7 @@
 #include "main_window.h"
 
 #include <QIcon>
+#include <QDateTime>
 
 main_window::main_window(QWidget *parent) : QWidget(parent)
 {
@@ -94,9 +95,9 @@ void main_window::init_wid(QWidget *parent)
     auto fn_to_sint = [=](const std::string &sbyte,int size){
         super_var_t ret;
         if(size == 8) { ret._t64 = Fbyte::Tmem_str<int64_t>(Fbyte::sbyte_hex(sbyte)); }
-        else if(size == 4) { ret._t64 = Fbyte::Tmem_str<int32_t>(Fbyte::sbyte_hex(sbyte)); }
-        else if(size == 2) { ret._t64 = Fbyte::Tmem_str<int16_t>(Fbyte::sbyte_hex(sbyte)); }
-        else if(size == 1) { ret._t64 = Fbyte::Tmem_str<int8_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 4) { ret._t32 = Fbyte::Tmem_str<int32_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 2) { ret._t16 = Fbyte::Tmem_str<int16_t>(Fbyte::sbyte_hex(sbyte)); }
+        else if(size == 1) { ret._t8 = Fbyte::Tmem_str<int8_t>(Fbyte::sbyte_hex(sbyte)); }
         return ret;
     };
     auto fn_from_sint = [=](super_var_t sint,int size){
@@ -132,8 +133,20 @@ void main_window::init_wid(QWidget *parent)
         bool is_unsigned = board_key->get_check_status(_E_UD_);
         std::string sret;
         super_var_t ret = fn_to_sint(sbyte,size);
-        if(is_unsigned) { sret = Fbyte::Tto_string(ret._ut64); }
-        else  { sret = Fbyte::Tto_string(ret._t64); }
+        if(is_unsigned) 
+        { 
+            if(size == 8) { sret = Fbyte::Tto_string(ret._ut64); }
+            else if(size == 4) { sret = Fbyte::Tto_string(ret._ut32); }
+            else if(size == 2) { sret = Fbyte::Tto_string(ret._ut16); }
+            else if(size == 1) { sret = Fbyte::Tto_string(ret._ut8); }
+        }
+        else  
+        { 
+            if(size == 8) { sret = Fbyte::Tto_string(ret._t64);  }
+            else if(size == 4) { sret = Fbyte::Tto_string(ret._t32);  }
+            else if(size == 2) { sret = Fbyte::Tto_string(ret._t16);  }
+            else if(size == 1) { sret = Fbyte::Tto_string(ret._t8);  }
+        }
         edt_integer->setText(QString::fromStdString(sret));
     };
 
@@ -142,6 +155,7 @@ void main_window::init_wid(QWidget *parent)
         bool is_8O = board_key->get_check_status(_E_8O_);
         bool is_10D = board_key->get_check_status(_E_10D_);
         bool is_16H = board_key->get_check_status(_E_16H_);
+        bool is_TS = board_key->get_check_status(_E_TS_);
 
         if(is_2B)
         {
@@ -162,6 +176,12 @@ void main_window::init_wid(QWidget *parent)
         else if(is_16H)
         {
             edt_hex->setText(QString::fromStdString(Fbyte::to_upper(Fbyte::sbyte_shex(sbyte))));
+        }
+        else if(is_TS)
+        {
+            qint64 timestamp = edt_calc->text().toLongLong();
+            QString format = QDateTime::fromSecsSinceEpoch(timestamp).toString(Qt::ISODate);
+            edt_hex->setText(format);
         }
     };
 

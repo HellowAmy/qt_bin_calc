@@ -71,12 +71,14 @@ set(PRO_SRC_FILES
 # 头文件 : 递归扫描子目录头文件
 fn_get_include_sub_ls(PRO_HEAD_WID wid)
 fn_get_include_sub_ls(PRO_INCLUDE include)
+fn_get_include_sub_ls(PRO_TEST test)
 
 set(PRO_HEAD_DIR
     util
     window
     ${PRO_HEAD_WID}
     ${PRO_INCLUDE}
+    ${PRO_TEST}
 )
 
 

@@ -7,7 +7,7 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
 
     _vec_input_but_word = {
         {_E_NULL_,  _E_NULL_,   _E_F_,  _E_MVL_,    _E_MVR_,    _E_UD_,     _E_BW_      },
-        {_E_NULL_,  _E_HC_,     _E_E_,  _E_BKL_,    _E_BKR_,    _E_CLR_,    _E_DEL_     },
+        {_E_TS_,    _E_HC_,     _E_E_,  _E_BKL_,    _E_BKR_,    _E_CLR_,    _E_DEL_     },
         {_E_16H_,   _E_8BT_,    _E_D_,  _E_1_,      _E_2_,      _E_3_,      _E_ADD_     },
         {_E_10D_,   _E_4BT_,    _E_C_,  _E_4_,      _E_5_,      _E_6_,      _E_SUB_     },
         {_E_8O_,    _E_2BT_,    _E_B_,  _E_7_,      _E_8_,      _E_9_,      _E_MULT_    },
@@ -24,11 +24,11 @@ wid_input::wid_input(QWidget *parent) : QFrame(parent)
     _set_checkable = {
         _E_16H_,    _E_10D_,    _E_8O_,     _E_2B_, 
         _E_8BT_,    _E_4BT_,    _E_2BT_,    _E_1BT_, 
-        _E_UD_,     _E_BW_,     _E_HC_
+        _E_UD_,     _E_BW_,     _E_HC_,     _E_TS_
     };
 
     _set_base = {
-        _E_16H_,    _E_10D_,    _E_8O_,     _E_2B_
+        _E_16H_,    _E_10D_,    _E_8O_,     _E_2B_,     _E_TS_
     };
 
     _set_bt = {
