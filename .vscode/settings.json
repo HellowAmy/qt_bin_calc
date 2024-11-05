@@ -66,6 +66,10 @@
         "strstream": "cpp",
         "fstream": "cpp",
         "optional": "cpp",
-        "qfileinfo": "cpp"
+        "qfileinfo": "cpp",
+        "qdatetime": "cpp",
+        "qlistwidgetitem": "cpp",
+        "qtablewidget": "cpp",
+        "qscrollbar": "cpp"
     }
 }

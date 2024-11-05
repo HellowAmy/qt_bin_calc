@@ -45,8 +45,20 @@ int run_main_app(int argc, char *argv[])
     qApp->setStyleSheet(sstyle);
     // vlogd($Q(sstyle));
 
+#if 0
+    test_13();
+    return a.exec();
+#endif
+
     main_window w;
     w.show();
+    w.setFixedHeight(w.height());
+    w.setMaximumWidth(1024);
+    w.resize(0,0);
+
+    // w.setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+    vlogd($(w.width()));
 
     return a.exec();
 }
@@ -74,10 +86,7 @@ int main(int argc, char *argv[])
     vlogd("== begin ==");
 
 
-#if 0
-    test_12();
-    return 0;
-#endif
+
 
     perse_arg(argc,argv);
 

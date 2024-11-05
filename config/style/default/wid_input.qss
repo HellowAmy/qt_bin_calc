@@ -4,30 +4,30 @@
 }
 
 QPushButton#QPushButtonInputSymbol {
-    border: 1px solid rgba(120, 120, 120, 50);
-    background-color: rgba(186, 221, 255, 50);
+    border: 1px solid rgba(120, 120, 120, 0.2);
+    background-color: rgba(186, 221, 255, 0.2);
     color: rgb(255, 58, 58);
     width: 40px;
     height: 40px;
 }
 
 QPushButton#QPushButtonInputSymbol:hover {
-    border: 1px solid rgba(199, 180, 50, 50);
-    background-color: rgba(255, 238, 154, 100);
+    border: 1px solid rgba(199, 180, 50, 0.2);
+    background-color: rgba(255, 238, 154, 0.4);
 }
 
 QPushButton#QPushButtonInputSymbol:pressed {
-    background-color: rgba(180, 180, 75, 100);
+    background-color: rgba(180, 180, 75, 0.4);
 }
 
 QPushButton#QPushButtonInputSymbol:checked {
-    border: 1px solid rgba(238, 129, 162, 100);
-    background-color: rgba(255, 238, 154, 100);
+    border: 1px solid rgba(238, 129, 162, 0.4);
+    background-color: rgba(255, 238, 154, 0.4);
 }
 
 QPushButton#QPushButtonInputBinaryList {
     border: 1px solid rgba(120, 120, 120, 0);
-    background-color: rgba(186, 221, 255, 50);
+    background-color: rgba(186, 221, 255, 0.2);
     color: rgb(255, 58, 58);
     width: 8px;
     height: 15px;
@@ -41,16 +41,66 @@ QLabel#QLabelBinaryListPos {
 }
 
 QWidget#QFrameInputBinaryLay {
-    border: 1px solid rgba(132, 196, 255, 100);
+    border: 1px solid rgba(132, 196, 255, 0.4);
 }
 
 QWidget#QFrameInputKeyBoard {
-    border: 1px solid rgba(132, 196, 255, 100);
+    border: 1px solid rgba(132, 196, 255, 0.4);
 }
 
 QLineEdit#QLineEditInputEdit {
-    background-color: rgba(255, 236, 131, 100);
-    border: 1px solid rgba(255, 129, 98, 100);
+    background-color: rgba(255, 236, 131, 0.4);
+    border: 1px solid rgba(255, 129, 98, 0.4);
     height: 40px;
     color: rgb(255, 58, 58);
+}
+
+QListWidget {
+    min-width: 0;
+    color: rgba(255, 58, 58, 0.8);
+    background-color: rgba(186, 221, 255, 0.2);
+    border: 1px solid rgba(255, 129, 98, 0.4);
+}
+
+QListWidget::item:selected {
+    color: rgba(255, 58, 58, 0.8);
+    background-color: rgba(255, 236, 131, 0.4);
+}
+
+QScrollBar:vertical {
+    min-width: 0;
+    border: none;
+    background-color: rgba(186, 221, 255, 0.2);
+    width: 5px;
+    border-radius: 5px;
+}
+
+QScrollBar:horizontal {
+    min-width: 0;
+    border: none;
+    background-color: rgba(186, 221, 255, 0.2);
+    height: 5px;
+    border-radius: 5px;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+QScrollBar::handle:vertical {
+    border: none;
+    background-color: rgba(255, 58, 58, 0.4);
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    border: none;
+    background-color: rgba(255, 58, 58, 0.4);
+    border-radius: 5px;
 }

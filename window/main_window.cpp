@@ -1,8 +1,9 @@
 
 #include "main_window.h"
 
-#include <QIcon>
-#include <QDateTime>
+
+#include <QTimer>
+#include <QDebug>
 
 main_window::main_window(QWidget *parent) : QWidget(parent)
 {
@@ -23,6 +24,12 @@ main_window::main_window(QWidget *parent) : QWidget(parent)
 
 #endif
 
+QTimer *it = new QTimer(this);
+it->callOnTimeout([=](){
+    qDebug()<<this->size();
+});
+it->start(1000);
+
 
 }
 
@@ -32,6 +39,26 @@ main_window::~main_window()
 
 void main_window::init_wid(QWidget *parent)
 {
+    struct env_t
+    {
+        int _base;
+        int _bt;
+        int _isUD;
+        int _isBW;
+        int _isHC;
+        int _isTS;
+    };
+
+    struct history_t
+    {
+        QString _f;
+        QString _d;
+        QString _hex;
+        QString _calc;
+        QString _bin;
+        env_t _env;
+    };
+
     union super_var_t
     {
         int64_t _t64;
@@ -59,6 +86,7 @@ void main_window::init_wid(QWidget *parent)
     input_edit *edt_calc = new input_edit(this);
     input_but_lay *board_binary = new input_but_lay(this);
     wid_input *board_key = new wid_input(this);
+    wid_list *history_list = new wid_list(this);
 
     edt_float->setPlaceholderText("F");
     edt_integer->setPlaceholderText("D");
@@ -116,6 +144,35 @@ void main_window::init_wid(QWidget *parent)
         return 0;
     };
 
+    auto fn_get_base = [=](){
+        if(board_key->get_check_status(_E_2B_)) { return 2; }
+        if(board_key->get_check_status(_E_8O_)) { return 8; }
+        if(board_key->get_check_status(_E_10D_)) { return 10; }
+        if(board_key->get_check_status(_E_16H_)) { return 16; }
+        return 0;
+    };
+
+    auto fn_get_env = [=](){
+        env_t t;
+        t._bt = fn_get_size();
+        t._base = fn_get_base();
+        t._isUD = board_key->get_check_status(_E_UD_);
+        t._isBW = board_key->get_check_status(_E_BW_);
+        t._isHC = board_key->get_check_status(_E_HC_);
+        t._isTS = board_key->get_check_status(_E_TS_);
+        return t;
+    };
+
+    auto fn_get_history = [=](){
+        history_t t;
+        t._f = edt_float->text();
+        t._d = edt_integer->text();
+        t._hex = edt_hex->text();
+        t._calc = edt_calc->text();
+        t._bin = board_binary->get_binary_valid();
+        t._env = fn_get_env();
+        return t;
+    };
 
     auto fn_show_F = [=](std::string sbyte,int size){
         int fsize = fn_get_size();
@@ -420,11 +477,33 @@ void main_window::init_wid(QWidget *parent)
         }
     };
 
+    auto fn_format_history = [=](){
+        history_t t = fn_get_history();
+        history_list->push_data(QString("[Calc: %1]").arg(t._calc));
+        history_list->push_data(QString("[F: %1] [D: %2] [Hex: %3]").arg(t._f).arg(t._d).arg(t._hex));
+        history_list->push_data(QString("[Bin: %1]").arg(t._bin));
+        history_list->push_data(QString("[Base: %1][Bt: %2][UD: %3][BW: %4][HC: %5][TS: %6]")
+                                    .arg(t._env._base)
+                                    .arg(t._env._bt)
+                                    .arg(t._env._isUD)
+                                    .arg(t._env._isBW)
+                                    .arg(t._env._isHC)
+                                    .arg(t._env._isTS)
+                                );
+        history_list->push_data("");
+        history_list->bar_move_bottom();
+    };
+
     auto fn_edit_calc = [=](const QString &str){
         fn_calc_formula();
     };
 
     auto fn_to_HC = [=](){
+        fn_calc_formula();
+    };
+
+    auto fn_to_EQUAL = [=](){
+        fn_format_history();
         fn_calc_formula();
     };
 
@@ -488,7 +567,7 @@ void main_window::init_wid(QWidget *parent)
         fn_switch_focus(sp_focus_key);
 
         if(board_key->is_calc_symbol(symbol)) { fn_append_calc(symbol); }
-        else if(symbol == _E_EQUAL_) { fn_calc_formula(); }
+        else if(symbol == _E_EQUAL_) { fn_to_EQUAL(); }
         else if(symbol == _E_CLR_) { fn_calc_clear(); } 
         else if(symbol == _E_DEL_) { fn_calc_delete(); } 
         else if(symbol == _E_MVL_) { fn_to_MVL(); } 
@@ -503,10 +582,22 @@ void main_window::init_wid(QWidget *parent)
     layh->addWidget(edt_float);
     layh->addWidget(edt_integer);
 
-    QVBoxLayout *lay_main = new QVBoxLayout(this);
-    lay_main->addLayout(layh);
-    lay_main->addWidget(edt_hex);
-    lay_main->addWidget(edt_calc);
-    lay_main->addWidget(board_binary);
-    lay_main->addWidget(board_key);
+    QWidget *wid_left = new QWidget(this);
+    wid_left->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    QVBoxLayout *lay_left = new QVBoxLayout(wid_left);
+    lay_left->setContentsMargins(0,0,0,0);
+    lay_left->setAlignment(Qt::AlignTop);
+    lay_left->addLayout(layh);
+    lay_left->addWidget(edt_hex);
+    lay_left->addWidget(edt_calc);
+    lay_left->addWidget(board_binary);
+    lay_left->addWidget(board_key);
+
+    QHBoxLayout *lay_main = new QHBoxLayout(this);
+    lay_main->setSpacing(5);
+    lay_main->setContentsMargins(10,10,5,10);
+    lay_left->setAlignment(Qt::AlignTop);
+    lay_main->addWidget(wid_left);
+    lay_main->addWidget(history_list);
+
 }

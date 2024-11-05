@@ -4,6 +4,8 @@
 
 
 #include <QDateTime>
+#include <QListWidget>
+
 
 
 #include <iostream>
@@ -715,6 +717,24 @@ void test_12()
     // 1730786241
     // 2024-11-05T13:57:21
 }
+
+void test_13()
+{
+    QListWidget *tab = new QListWidget;
+    tab->resize(500,500);
+    tab->addItem("123");
+    tab->addItem("123==asd\nasd\nasdaw\nawasd\nasd");
+    tab->addItem("123==asd\nasd\nasdaw\nawasd\nasd");
+    tab->addItem("123");
+
+    QListWidgetItem *iy = new QListWidgetItem;
+    iy->setText("==pp==123==asd\nasd\nasda22222222222222222222222222222222222222222223333333333333333333333333w\nawasd\nasd");
+    iy->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable);
+    tab->addItem(iy);
+    tab->show();
+
+}
+
 
 
 #endif // TESTP1_H

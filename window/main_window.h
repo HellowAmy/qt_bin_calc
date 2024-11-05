@@ -4,6 +4,9 @@
 
 #include <QWidget>
 #include <QLineEdit>
+#include <QIcon>
+#include <QDateTime>
+#include <QEvent>
 
 #include <memory>
 
@@ -13,6 +16,7 @@
 #include "Fbyte.h"
 #include "Fcalc.h"
 #include "input_edit.h"
+#include "wid_list.h"
 
 
 class main_window : public QWidget
